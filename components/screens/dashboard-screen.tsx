@@ -1,10 +1,10 @@
 "use client"
 
+import { Navbar } from "@/components/navbar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { Button } from "@/components/ui/button"
 import { useAppStore } from "@/lib/store"
-import { Cloud, Droplets, Lightbulb, RotateCcw, Sun, Wind, LogOut } from "lucide-react"
+import { Cloud, Droplets, Lightbulb, Sun, Wind } from "lucide-react"
 import { useMemo } from "react"
 
 const tips = [
@@ -26,7 +26,7 @@ const weatherTips = {
 }
 
 export function DashboardScreen() {
-  const { userProfile, weeklyRoutine, progressEntries, resetApp, logout } = useAppStore()
+  const { userProfile, weeklyRoutine, progressEntries } = useAppStore()
   
   const todaysTasks = useMemo(() => {
     const today = new Date().toLocaleDateString('en-US', { weekday: 'long' })
@@ -39,7 +39,6 @@ export function DashboardScreen() {
   
   const randomTip = useMemo(() => tips[Math.floor(Math.random() * tips.length)], [])
   
-  // Simulate weather based on user concerns/conditions
   const weather = useMemo(() => {
     if (userProfile.concerns.includes('frizz')) return weatherTips.humid
     if (userProfile.hairCondition === 'dry') return weatherTips.dry
@@ -71,9 +70,9 @@ export function DashboardScreen() {
   }
   
   return (
-    <div className="space-y-6 px-4 pb-24 pt-6">
-      {/* Greeting */}
-      <div className="flex items-start justify-between">
+    <>
+      <Navbar />
+      <div className="space-y-6 px-4 pb-24 pt-6">
         <div className="space-y-1">
           <h1 className="text-2xl font-bold text-foreground">
             {getGreeting()}, {userProfile.name || 'there'}! 👋
@@ -82,122 +81,97 @@ export function DashboardScreen() {
             {getPersonalizedMessage()}
           </p>
         </div>
-        <div className="flex gap-2 shrink-0">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={resetApp}
-            className="text-muted-foreground hover:text-foreground"
-            title="Reset app"
-          >
-            <RotateCcw className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={logout}
-            className="text-muted-foreground hover:text-foreground"
-            title="Logout"
-          >
-            <LogOut className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-      
-      {/* Today's Progress */}
-      <Card className="border-0 bg-card shadow-lg shadow-black/5">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-semibold">Today&apos;s Progress</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-3 flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">
-              {completedTasks} of {todaysTasks.length} tasks completed
-            </span>
-            <span className="text-sm font-semibold text-primary">
-              {Math.round(progressPercent)}%
-            </span>
-          </div>
-          <Progress value={progressPercent} className="h-3" />
-        </CardContent>
-      </Card>
-      
-      {/* Today's Routine */}
-      <Card className="border-0 bg-card shadow-lg shadow-black/5">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-semibold">Today&apos;s Routine</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {todaysTasks.length > 0 ? (
-            <div className="space-y-3">
-              {todaysTasks.map((task, index) => (
-                <RoutineStep 
-                  key={task.id}
-                  step={index + 1}
-                  task={task.task}
-                  completed={task.completed}
-                />
-              ))}
+        
+        <Card className="border-0 bg-card shadow-lg shadow-black/5">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold">Today&apos;s Progress</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">
+                {completedTasks} of {todaysTasks.length} tasks completed
+              </span>
+              <span className="text-sm font-semibold text-primary">
+                {Math.round(progressPercent)}%
+              </span>
             </div>
-          ) : (
-            <p className="py-4 text-center text-muted-foreground">
-              No tasks scheduled for today. Rest and let your hair breathe! 🌿
-            </p>
-          )}
-        </CardContent>
-      </Card>
-      
-      {/* Weather Tip */}
-      <Card className="border-0 bg-primary/5 shadow-lg shadow-black/5">
-        <CardContent className="flex items-start gap-4 p-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10">
-            <weather.icon className="h-6 w-6 text-primary" />
-          </div>
-          <div>
-            <h3 className="mb-1 font-semibold text-foreground">Weather Alert</h3>
-            <p className="text-sm text-muted-foreground">{weather.tip}</p>
-          </div>
-        </CardContent>
-      </Card>
-      
-      {/* Hair Tip */}
-      <Card className="border-0 bg-accent/30 shadow-lg shadow-black/5">
-        <CardContent className="flex items-start gap-4 p-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent">
-            <Lightbulb className="h-6 w-6 text-accent-foreground" />
-          </div>
-          <div>
-            <h3 className="mb-1 font-semibold text-foreground">Tip of the Day</h3>
-            <p className="text-sm text-muted-foreground">{randomTip}</p>
-          </div>
-        </CardContent>
-      </Card>
-      
-      {/* Weekly Summary */}
-      <Card className="border-0 bg-card shadow-lg shadow-black/5">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-semibold">Weekly Summary</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 gap-4">
-            <StatItem 
-              label="Tasks Done" 
-              value={weeklyRoutine.filter(t => t.completed).length.toString()}
-              total={weeklyRoutine.length}
-            />
-            <StatItem 
-              label="Logs" 
-              value={progressEntries.length.toString()}
-            />
-            <StatItem 
-              label="Streak" 
-              value="3"
-              suffix="days"
-            />
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+            <Progress value={progressPercent} className="h-3" />
+          </CardContent>
+        </Card>
+        
+        <Card className="border-0 bg-card shadow-lg shadow-black/5">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold">Today&apos;s Routine</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {todaysTasks.length > 0 ? (
+              <div className="space-y-3">
+                {todaysTasks.map((task, index) => (
+                  <RoutineStep 
+                    key={task.id}
+                    step={index + 1}
+                    task={task.task}
+                    completed={task.completed}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="py-4 text-center text-muted-foreground">
+                No tasks scheduled for today. Rest and let your hair breathe! 🌿
+              </p>
+            )}
+          </CardContent>
+        </Card>
+        
+        <Card className="border-0 bg-primary/5 shadow-lg shadow-black/5">
+          <CardContent className="flex items-start gap-4 p-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10">
+              <weather.icon className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <h3 className="mb-1 font-semibold text-foreground">Weather Alert</h3>
+              <p className="text-sm text-muted-foreground">{weather.tip}</p>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="border-0 bg-accent/30 shadow-lg shadow-black/5">
+          <CardContent className="flex items-start gap-4 p-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent">
+              <Lightbulb className="h-6 w-6 text-accent-foreground" />
+            </div>
+            <div>
+              <h3 className="mb-1 font-semibold text-foreground">Tip of the Day</h3>
+              <p className="text-sm text-muted-foreground">{randomTip}</p>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="border-0 bg-card shadow-lg shadow-black/5">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold">Weekly Summary</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-4">
+              <StatItem 
+                label="Tasks Done" 
+                value={weeklyRoutine.filter(t => t.completed).length.toString()}
+                total={weeklyRoutine.length}
+              />
+              <StatItem 
+                label="Logs" 
+                value={progressEntries.length.toString()}
+              />
+              <StatItem 
+                label="Streak" 
+                value="3"
+                suffix="days"
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   )
 }
 
