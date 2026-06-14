@@ -2,27 +2,47 @@
 
 import { useState, useRef, useEffect } from "react"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
 import { useAppStore } from "@/lib/store"
 import { ChevronDown, LogOut, Settings, User } from "lucide-react"
 
-export function UserProfileDropdown() {
+interface UserProfileDropdownProps {
+  userName?: string
+  userEmail?: string
+  avatarImage?: string
+  onLogout?: () => void
+  onViewProfile?: () => void
+  onSettings?: () => void
+}
+
+export function UserProfileDropdown({
+  userName,
+  userEmail,
+  avatarImage,
+  onLogout,
+  onViewProfile,
+  onSettings,
+}: UserProfileDropdownProps = {}) {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const { userEmail, userProfile, logout, setScreen } = useAppStore()
+  const store = useAppStore()
+  
+  // Use provided props or fall back to store data
+  const displayName = userName || store.userProfile.name || store.userEmail?.split("@")[0] || "User"
+  const displayEmail = userEmail || store.userEmail || ""
+  const profileImage = avatarImage || store.userProfile.profileImage || ""
 
-  // Get user initials from email or name
+  // Get user initials from name or email
   const getInitials = () => {
-    if (userProfile.name) {
-      return userProfile.name
+    if (displayName && displayName !== "User") {
+      return displayName
         .split(" ")
         .map((n) => n[0])
         .join("")
         .toUpperCase()
         .slice(0, 2)
     }
-    if (userEmail) {
-      return userEmail.split("@")[0].slice(0, 2).toUpperCase()
+    if (displayEmail) {
+      return displayEmail.split("@")[0].slice(0, 2).toUpperCase()
     }
     return "U"
   }
@@ -48,19 +68,29 @@ export function UserProfileDropdown() {
 
   const handleLogout = () => {
     setIsOpen(false)
-    logout()
+    if (onLogout) {
+      onLogout()
+    } else {
+      store.logout()
+    }
   }
 
   const handleViewProfile = () => {
     setIsOpen(false)
-    // Navigate to profile screen
-    setScreen("dashboard") // Replace with profile screen when available
+    if (onViewProfile) {
+      onViewProfile()
+    } else {
+      store.setScreen("dashboard")
+    }
   }
 
   const handleSettings = () => {
     setIsOpen(false)
-    // Navigate to settings screen
-    setScreen("dashboard") // Replace with settings screen when available
+    if (onSettings) {
+      onSettings()
+    } else {
+      store.setScreen("dashboard")
+    }
   }
 
   return (
@@ -73,7 +103,7 @@ export function UserProfileDropdown() {
         aria-haspopup="true"
       >
         <Avatar className="h-8 w-8">
-          <AvatarImage src={userProfile.profileImage || ""} alt="User" />
+          <AvatarImage src={profileImage} alt={displayName} />
           <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
             {getInitials()}
           </AvatarFallback>
@@ -91,9 +121,9 @@ export function UserProfileDropdown() {
           {/* Header */}
           <div className="border-b border-border px-4 py-3">
             <p className="text-sm font-semibold text-foreground">
-              {userProfile.name || userEmail || "User"}
+              {displayName}
             </p>
-            <p className="text-xs text-muted-foreground">{userEmail}</p>
+            {displayEmail && <p className="text-xs text-muted-foreground">{displayEmail}</p>}
           </div>
 
           {/* Menu Items */}

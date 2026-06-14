@@ -28,7 +28,13 @@ export default function UserProfileDemo() {
           </div>
 
           {/* User Profile Dropdown */}
-          <UserProfileDropdown />
+          <UserProfileDropdown 
+            userName="Taylor Johnson"
+            userEmail="taylor@example.com"
+            onLogout={() => alert("Logged out successfully")}
+            onViewProfile={() => alert("Navigate to profile page")}
+            onSettings={() => alert("Navigate to settings page")}
+          />
         </div>
       </nav>
 
