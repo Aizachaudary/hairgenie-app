@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { useAppStore } from "@/lib/store"
-import { Cloud, Droplets, Lightbulb, RotateCcw, Sun, Wind } from "lucide-react"
+import { Cloud, Droplets, Lightbulb, RotateCcw, Sun, Wind, LogOut } from "lucide-react"
 import { useMemo } from "react"
 
 const tips = [
@@ -26,7 +26,7 @@ const weatherTips = {
 }
 
 export function DashboardScreen() {
-  const { userProfile, weeklyRoutine, progressEntries, resetApp } = useAppStore()
+  const { userProfile, weeklyRoutine, progressEntries, resetApp, logout } = useAppStore()
   
   const todaysTasks = useMemo(() => {
     const today = new Date().toLocaleDateString('en-US', { weekday: 'long' })
@@ -82,15 +82,26 @@ export function DashboardScreen() {
             {getPersonalizedMessage()}
           </p>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={resetApp}
-          className="shrink-0 text-muted-foreground hover:text-foreground"
-          title="Reset app"
-        >
-          <RotateCcw className="h-4 w-4" />
-        </Button>
+        <div className="flex gap-2 shrink-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={resetApp}
+            className="text-muted-foreground hover:text-foreground"
+            title="Reset app"
+          >
+            <RotateCcw className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={logout}
+            className="text-muted-foreground hover:text-foreground"
+            title="Logout"
+          >
+            <LogOut className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
       
       {/* Today's Progress */}

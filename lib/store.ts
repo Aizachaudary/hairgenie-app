@@ -37,8 +37,10 @@ export interface RoutineCheckItem {
 }
 
 interface AppState {
-  currentScreen: 'onboarding' | 'quiz' | 'dashboard' | 'routine' | 'products' | 'progress'
+  currentScreen: 'login' | 'signup' | 'onboarding' | 'quiz' | 'dashboard' | 'routine' | 'products' | 'progress'
   hasCompletedOnboarding: boolean
+  isAuthenticated: boolean
+  userEmail: string | null
   userProfile: UserProfile
   progressEntries: ProgressEntry[]
   weeklyRoutine: RoutineCheckItem[]
@@ -51,6 +53,9 @@ interface AppState {
   toggleRoutineItem: (id: string) => void
   toggleReminders: () => void
   generateRoutine: () => void
+  login: (email: string, password: string) => void
+  signup: (email: string, password: string, name: string) => void
+  logout: () => void
   resetApp: () => void
 }
 
@@ -110,8 +115,10 @@ const generateWeeklyRoutine = (profile: UserProfile): RoutineCheckItem[] => {
 export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
-      currentScreen: 'onboarding',
+      currentScreen: 'login',
       hasCompletedOnboarding: false,
+      isAuthenticated: false,
+      userEmail: null,
       userProfile: defaultProfile,
       progressEntries: [],
       weeklyRoutine: [],
@@ -143,9 +150,46 @@ export const useAppStore = create<AppState>()(
         set({ weeklyRoutine: routine, currentScreen: 'dashboard' })
       },
       
-      resetApp: () => set({
-        currentScreen: 'onboarding',
+      login: (email, password) => {
+        // In a real app, this would authenticate with a backend
+        if (email && password) {
+          set({
+            isAuthenticated: true,
+            userEmail: email,
+            currentScreen: 'onboarding',
+            userProfile: { ...defaultProfile, name: email.split('@')[0] }
+          })
+        }
+      },
+      
+      signup: (email, password, name) => {
+        // In a real app, this would create an account on a backend
+        if (email && password && name) {
+          set({
+            isAuthenticated: true,
+            userEmail: email,
+            currentScreen: 'onboarding',
+            userProfile: { ...defaultProfile, name }
+          })
+        }
+      },
+      
+      logout: () => set({
+        isAuthenticated: false,
+        userEmail: null,
+        currentScreen: 'login',
+        userProfile: defaultProfile,
+        progressEntries: [],
+        weeklyRoutine: [],
         hasCompletedOnboarding: false,
+        remindersEnabled: false,
+      }),
+      
+      resetApp: () => set({
+        currentScreen: 'login',
+        hasCompletedOnboarding: false,
+        isAuthenticated: false,
+        userEmail: null,
         userProfile: defaultProfile,
         progressEntries: [],
         weeklyRoutine: [],

@@ -1,6 +1,8 @@
 "use client"
 
 import { useAppStore } from "@/lib/store"
+import { LoginScreen } from "@/components/screens/login-screen"
+import { SignupScreen } from "@/components/screens/signup-screen"
 import { OnboardingScreen } from "@/components/screens/onboarding-screen"
 import { QuizScreen } from "@/components/screens/quiz-screen"
 import { DashboardScreen } from "@/components/screens/dashboard-screen"
@@ -12,7 +14,7 @@ import { useEffect, useState } from "react"
 import { Sparkles } from "lucide-react"
 
 export function HairGenieApp() {
-  const { currentScreen, hasCompletedOnboarding } = useAppStore()
+  const { currentScreen, hasCompletedOnboarding, isAuthenticated } = useAppStore()
   const [mounted, setMounted] = useState(false)
   
   // Prevent hydration mismatch
@@ -29,6 +31,14 @@ export function HairGenieApp() {
         <p className="text-muted-foreground">Loading HairGenie...</p>
       </div>
     )
+  }
+  
+  // Show login/signup if not authenticated
+  if (!isAuthenticated) {
+    if (currentScreen === 'signup') {
+      return <SignupScreen />
+    }
+    return <LoginScreen />
   }
   
   // Show onboarding if not completed
