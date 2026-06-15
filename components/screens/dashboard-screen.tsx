@@ -6,205 +6,175 @@ import { useAppStore } from "@/lib/store"
 import { Cloud, Droplets, Lightbulb, Sun, Wind } from "lucide-react"
 import { useMemo } from "react"
 
-const tips = [
-  "Avoid brushing wet hair - use a wide-toothed comb instead",
-  "Trim your hair every 6-8 weeks to prevent split ends",
-  "Use lukewarm water for washing - hot water strips natural oils",
-  "Apply conditioner from mid-length to ends, not roots",
-  "Protect your hair from sun with a hat or UV spray",
-  "Sleep on a silk pillowcase to reduce friction",
-  "Avoid tight hairstyles that pull on your hairline",
-  "Massage your scalp daily to boost blood circulation",
-]
-
-const weatherTips = {
-  humid: { icon: Droplets, tip: "High humidity today! Apply an anti-frizz serum before stepping out." },
-  dry: { icon: Sun, tip: "Dry weather ahead. Keep your hair hydrated with leave-in conditioner." },
-  windy: { icon: Wind, tip: "Windy conditions expected. Tie your hair to prevent tangles." },
-  rainy: { icon: Cloud, tip: "Rainy day! Use a waterproof hair product to protect your style." },
-}
-
 export function DashboardScreen() {
   const { userProfile, weeklyRoutine, progressEntries } = useAppStore()
-  
-  const todaysTasks = useMemo(() => {
-    const today = new Date().toLocaleDateString('en-US', { weekday: 'long' })
-    return weeklyRoutine.filter(item => item.day === today)
-  }, [weeklyRoutine])
-  
-  const completedTasks = todaysTasks.filter(t => t.completed).length
-  const totalTasks = todaysTasks.length || 1
-  const progressPercent = (completedTasks / totalTasks) * 100
-  
-  const randomTip = useMemo(() => tips[Math.floor(Math.random() * tips.length)], [])
-  
-  const weather = useMemo(() => {
-    if (userProfile.concerns.includes('frizz')) return weatherTips.humid
-    if (userProfile.hairCondition === 'dry') return weatherTips.dry
-    return weatherTips.humid
-  }, [userProfile])
-  
+
+  const completedTasks = weeklyRoutine.filter((item) => item.completed).length
+  const todaysTasks = weeklyRoutine.slice(0, 3)
+
+  const progressData = useMemo(() => {
+    if (progressEntries.length === 0) {
+      return { avgHairFall: 5, avgFrizz: 6 }
+    }
+    const avgHairFall =
+      progressEntries.reduce((sum, e) => sum + (e.hairFall || 0), 0) /
+      progressEntries.length
+    const avgFrizz =
+      progressEntries.reduce((sum, e) => sum + (e.frizzLevel || 0), 0) /
+      progressEntries.length
+    return { avgHairFall, avgFrizz }
+  }, [progressEntries])
+
   const getGreeting = () => {
     const hour = new Date().getHours()
-    if (hour < 12) return 'Good morning'
-    if (hour < 17) return 'Good afternoon'
-    return 'Good evening'
+    if (hour < 12) return "Good Morning"
+    if (hour < 18) return "Good Afternoon"
+    return "Good Evening"
   }
-  
+
   const getPersonalizedMessage = () => {
-    const messages = []
-    if (userProfile.hairCondition === 'dry') {
-      messages.push("Focus on hydration and deep conditioning this week.")
+    if (completedTasks === todaysTasks.length) {
+      return "Great job! You completed today's routine! 🎉"
+    } else if (completedTasks > 0) {
+      return `Keep it up! You've completed ${completedTasks} task${completedTasks !== 1 ? "s" : ""} today.`
     }
-    if (userProfile.concerns.includes('hairfall')) {
-      messages.push("Remember to be gentle with your hair and avoid tight styles.")
-    }
-    if (userProfile.concerns.includes('frizz')) {
-      messages.push("Anti-frizz serums will be your best friend!")
-    }
-    if (userProfile.stress === 'high') {
-      messages.push("Stress can affect hair health - try some relaxation techniques.")
-    }
-    return messages[0] || "Keep up with your routine for best results!"
+    return "Start your daily hair routine to maintain healthy, beautiful hair!"
   }
-  
+
   return (
     <div className="space-y-6 px-4 pb-24 pt-6">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold text-foreground">
-            {getGreeting()}, {userProfile.name || 'there'}! 👋
-          </h1>
-          <p className="text-muted-foreground">
-            {getPersonalizedMessage()}
-          </p>
-        </div>
-        
-        <Card className="border-0 bg-card shadow-lg shadow-black/5">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Today&apos;s Progress</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-3 flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">
-                {completedTasks} of {todaysTasks.length} tasks completed
-              </span>
-              <span className="text-sm font-semibold text-primary">
-                {Math.round(progressPercent)}%
-              </span>
-            </div>
-            <Progress value={progressPercent} className="h-3" />
-          </CardContent>
-        </Card>
-        
-        <Card className="border-0 bg-card shadow-lg shadow-black/5">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Today&apos;s Routine</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {todaysTasks.length > 0 ? (
-              <div className="space-y-3">
-                {todaysTasks.map((task, index) => (
-                  <RoutineStep 
-                    key={task.id}
-                    step={index + 1}
-                    task={task.task}
-                    completed={task.completed}
-                  />
-                ))}
+      {/* Greeting */}
+      <div className="space-y-1">
+        <h1 className="text-2xl font-bold text-foreground">
+          {getGreeting()}, {userProfile.name || "there"}! 👋
+        </h1>
+        <p className="text-muted-foreground">
+          {getPersonalizedMessage()}
+        </p>
+      </div>
+
+      {/* Today's Progress */}
+      <Card className="border-0 bg-card shadow-lg shadow-black/5">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base font-semibold">Today&apos;s Progress</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">
+              {completedTasks} of {todaysTasks.length} tasks completed
+            </span>
+            <span className="text-sm font-semibold text-primary">
+              {Math.round((completedTasks / todaysTasks.length) * 100)}%
+            </span>
+          </div>
+          <Progress
+            value={(completedTasks / todaysTasks.length) * 100}
+            className="h-2"
+          />
+        </CardContent>
+      </Card>
+
+      {/* Weekly Routine Preview */}
+      <Card className="border-0 bg-card shadow-lg shadow-black/5">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base font-semibold">This Week&apos;s Routine</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {weeklyRoutine.slice(0, 4).map((item) => (
+              <div key={item.id} className="flex items-start justify-between rounded-lg bg-secondary/50 p-3">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-foreground">{item.day}</p>
+                  <p className="text-xs text-muted-foreground">{item.task}</p>
+                </div>
+                <div className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                  item.completed
+                    ? "bg-primary/20 text-primary"
+                    : "bg-muted text-muted-foreground"
+                }`}>
+                  {item.completed ? "Done" : "Pending"}
+                </div>
               </div>
-            ) : (
-              <p className="py-4 text-center text-muted-foreground">
-                No tasks scheduled for today. Rest and let your hair breathe! 🌿
-              </p>
-            )}
-          </CardContent>
-        </Card>
-        
-        <Card className="border-0 bg-primary/5 shadow-lg shadow-black/5">
-          <CardContent className="flex items-start gap-4 p-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10">
-              <weather.icon className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <h3 className="mb-1 font-semibold text-foreground">Weather Alert</h3>
-              <p className="text-sm text-muted-foreground">{weather.tip}</p>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="border-0 bg-accent/30 shadow-lg shadow-black/5">
-          <CardContent className="flex items-start gap-4 p-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent">
-              <Lightbulb className="h-6 w-6 text-accent-foreground" />
-            </div>
-            <div>
-              <h3 className="mb-1 font-semibold text-foreground">Tip of the Day</h3>
-              <p className="text-sm text-muted-foreground">{randomTip}</p>
-            </div>
-          </CardContent>
-        </Card>
-        
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Hair Health Summary */}
+      <div className="grid grid-cols-2 gap-3">
+        {/* Hair Fall */}
         <Card className="border-0 bg-card shadow-lg shadow-black/5">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Weekly Summary</CardTitle>
+            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <Droplets className="h-4 w-4 text-primary" />
+              Hair Fall
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-3 gap-4">
-              <StatItem 
-                label="Tasks Done" 
-                value={weeklyRoutine.filter(t => t.completed).length.toString()}
-                total={weeklyRoutine.length}
-              />
-              <StatItem 
-                label="Logs" 
-                value={progressEntries.length.toString()}
-              />
-              <StatItem 
-                label="Streak" 
-                value="3"
-                suffix="days"
-              />
+            <div className="text-2xl font-bold text-foreground">
+              {Math.round(progressData.avgHairFall)}/10
             </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {progressData.avgHairFall < 5 ? "Improving ↓" : "Monitor"}
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Frizz Level */}
+        <Card className="border-0 bg-card shadow-lg shadow-black/5">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <Wind className="h-4 w-4 text-primary" />
+              Frizz Level
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-foreground">
+              {Math.round(progressData.avgFrizz)}/10
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {progressData.avgFrizz < 6 ? "Looking Good ↓" : "High"}
+            </p>
           </CardContent>
         </Card>
       </div>
-    </div>
-  )
-}
 
-function RoutineStep({ step, task, completed }: { step: number; task: string; completed: boolean }) {
-  const { toggleRoutineItem, weeklyRoutine } = useAppStore()
-  const today = new Date().toLocaleDateString('en-US', { weekday: 'long' })
-  const item = weeklyRoutine.find(i => i.day === today && i.task === task)
-  
-  return (
-    <button 
-      onClick={() => item && toggleRoutineItem(item.id)}
-      className="flex w-full items-center gap-3 text-left"
-    >
-      <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
-        completed 
-          ? 'bg-primary text-primary-foreground' 
-          : 'bg-secondary text-secondary-foreground'
-      }`}>
-        {completed ? '✓' : step}
-      </div>
-      <span className={completed ? 'text-muted-foreground line-through' : 'text-foreground'}>
-        {task}
-      </span>
-    </button>
-  )
-}
+      {/* Weather-based Tips */}
+      <Card className="border-0 bg-gradient-to-br from-primary/10 to-primary/5 shadow-lg shadow-black/5">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-semibold flex items-center gap-2">
+            <Cloud className="h-4 w-4 text-primary" />
+            Weather Tips
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-foreground">
+            Sunny weather today? Use a UV-protective spray to shield your hair from sun damage.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <span className="inline-flex items-center gap-1 text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">
+              <Sun className="h-3 w-3" />
+              UV Protection
+            </span>
+            <span className="inline-flex items-center gap-1 text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">
+              <Lightbulb className="h-3 w-3" />
+              Pro Tip
+            </span>
+          </div>
+        </CardContent>
+      </Card>
 
-function StatItem({ label, value, total, suffix }: { label: string; value: string; total?: number; suffix?: string }) {
-  return (
-    <div className="text-center">
-      <div className="text-2xl font-bold text-foreground">
-        {value}
-        {total && <span className="text-sm text-muted-foreground">/{total}</span>}
-        {suffix && <span className="ml-1 text-xs text-muted-foreground">{suffix}</span>}
-      </div>
-      <div className="text-xs text-muted-foreground">{label}</div>
+      {/* Daily Tip */}
+      <Card className="border-0 bg-card shadow-lg shadow-black/5">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-semibold">Daily Hair Tip</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            💡 Pro Tip: Use lukewarm water when washing your hair instead of hot water. Hot water can strip natural oils and make your hair drier and more prone to breakage.
+          </p>
+        </CardContent>
+      </Card>
     </div>
   )
 }

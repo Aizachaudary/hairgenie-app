@@ -6,101 +6,112 @@ import { useAppStore } from "@/lib/store"
 import { useMemo } from "react"
 import { Heart, Sparkles, Star } from "lucide-react"
 
-interface Product {
-  id: string
-  name: string
-  category: string
-  reason: string
-  price: string
-  rating: number
-  bestFor: string[]
-  emoji: string
-}
-
-const allProducts: Product[] = [
-  { id: 'sh1', name: 'Gentle Cleansing Shampoo', category: 'Shampoo', reason: 'Sulfate-free formula for gentle cleansing', price: '$12', rating: 4.5, bestFor: ['dry', 'damaged'], emoji: '🧴' },
-  { id: 'sh2', name: 'Clarifying Shampoo', category: 'Shampoo', reason: 'Removes buildup and excess oil', price: '$14', rating: 4.3, bestFor: ['oily'], emoji: '🧴' },
-  { id: 'oil1', name: 'Coconut Hair Oil', category: 'Hair Oil', reason: 'Deep nourishment and shine', price: '$10', rating: 4.7, bestFor: ['dry', 'damaged', 'frizz'], emoji: '🥥' },
-  { id: 'oil2', name: 'Argan Oil Treatment', category: 'Hair Oil', reason: 'Lightweight moisture without greasy feel', price: '$18', rating: 4.8, bestFor: ['frizz', 'normal'], emoji: '✨' },
-  { id: 'ser1', name: 'Anti-Frizz Serum', category: 'Serum', reason: 'Smooths cuticles and tames flyaways', price: '$20', rating: 4.6, bestFor: ['frizz', 'curly', 'wavy'], emoji: '💧' },
-]
-
 export function ProductsScreen() {
   const { userProfile } = useAppStore()
-  
+
   const recommendedProducts = useMemo(() => {
-    const userNeeds = [
-      userProfile.hairCondition,
-      userProfile.scalpCondition,
-      userProfile.hairType,
-      ...userProfile.concerns
-    ].filter(Boolean) as string[]
-    
-    const scored = allProducts.map(product => {
-      const score = product.bestFor.filter(need => userNeeds.includes(need)).length
-      return { ...product, score }
-    })
-    
-    return scored.sort((a, b) => b.score - a.score).slice(0, 5)
-  }, [userProfile])
-  
+    const products = [
+      {
+        id: 1,
+        name: "Argan Oil Hair Serum",
+        category: "Serum",
+        rating: 4.8,
+        price: "$24.99",
+        description: "Lightweight argan oil serum for shine and frizz control",
+        tags: ["Frizz", "Shine", "Natural"],
+      },
+      {
+        id: 2,
+        name: "Deep Moisture Mask",
+        category: "Mask",
+        rating: 4.6,
+        price: "$19.99",
+        description: "Weekly deep conditioning treatment for dry hair",
+        tags: ["Hydration", "Repair", "Weekly"],
+      },
+      {
+        id: 3,
+        name: "Silk Pillowcase",
+        category: "Accessory",
+        rating: 4.9,
+        price: "$34.99",
+        description: "Reduces friction and prevents hair breakage while sleeping",
+        tags: ["Prevention", "Sleep", "Recommended"],
+      },
+      {
+        id: 4,
+        name: "UV Protective Spray",
+        category: "Spray",
+        rating: 4.5,
+        price: "$14.99",
+        description: "Shields hair from sun damage and color fading",
+        tags: ["Protection", "Outdoor", "UV"],
+      },
+    ]
+    return products
+  }, [])
+
   return (
     <div className="space-y-6 px-4 pb-24 pt-6">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold text-foreground">Product Picks</h1>
-          <p className="text-muted-foreground">
-            Curated recommendations for your hair type
-          </p>
-        </div>
-        
-        <Card className="border-0 bg-primary/5 shadow-lg shadow-black/5">
-          <CardContent className="flex items-center gap-3 p-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-              <Sparkles className="h-5 w-5 text-primary" />
+      {/* Header */}
+      <div className="space-y-1">
+        <h1 className="text-2xl font-bold text-foreground">Recommended Products</h1>
+        <p className="text-muted-foreground">
+          Curated for your hair type and concerns
+        </p>
+      </div>
+
+      {/* DIY Alternatives */}
+      <Card className="border-0 bg-gradient-to-br from-primary/10 to-primary/5 shadow-lg shadow-black/5">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-3">
+            <Sparkles className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+            <div>
+              <p className="font-semibold text-sm text-foreground">Budget-Friendly Alternative</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Mix coconut oil with honey for a DIY deep conditioning mask. Apply for 20 minutes before shampooing!
+              </p>
             </div>
-            <p className="text-sm text-foreground">
-              Based on your <span className="font-semibold">{userProfile.hairType}</span> hair and <span className="font-semibold">{userProfile.hairCondition}</span> condition
-            </p>
-          </CardContent>
-        </Card>
-        
-        <div className="space-y-3">
-          {recommendedProducts.map(product => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Products Grid */}
+      <div className="space-y-3">
+        {recommendedProducts.map((product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
       </div>
     </div>
   )
 }
 
-function ProductCard({ product }: { product: Product & { score: number } }) {
+function ProductCard({ product }: { product: any }) {
   return (
-    <Card className="border-0 bg-card shadow-lg shadow-black/5 transition-all hover:shadow-xl">
+    <Card className="border-0 bg-card shadow-lg shadow-black/5 overflow-hidden hover:shadow-lg hover:shadow-black/10 transition-shadow">
       <CardContent className="p-4">
-        <div className="flex gap-4">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-secondary text-3xl">
-            {product.emoji}
+        <div className="flex items-start justify-between mb-3">
+          <div>
+            <p className="font-semibold text-foreground">{product.name}</p>
+            <p className="text-xs text-muted-foreground">{product.category}</p>
           </div>
-          <div className="flex-1">
-            <div className="mb-1 flex items-start justify-between">
-              <h3 className="font-semibold text-foreground">{product.name}</h3>
-              <span className="text-sm font-semibold text-primary">{product.price}</span>
-            </div>
-            <p className="mb-2 text-sm text-muted-foreground">{product.reason}</p>
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1">
-                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                <span className="text-xs font-medium text-foreground">{product.rating}</span>
-              </div>
-              {product.score >= 2 && (
-                <Badge variant="secondary" className="gap-1 text-xs">
-                  <Heart className="h-3 w-3 fill-primary text-primary" />
-                  Great match
-                </Badge>
-              )}
-            </div>
+          <div className="flex items-center gap-1 bg-primary/10 px-2 py-1 rounded-full">
+            <Star className="h-3 w-3 text-primary fill-primary" />
+            <span className="text-xs font-semibold text-primary">{product.rating}</span>
           </div>
+        </div>
+
+        <p className="text-sm text-muted-foreground mb-3">{product.description}</p>
+
+        <div className="flex items-center justify-between">
+          <div className="flex flex-wrap gap-1">
+            {product.tags.map((tag: string) => (
+              <Badge key={tag} variant="secondary" className="text-xs">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+          <p className="font-bold text-primary">{product.price}</p>
         </div>
       </CardContent>
     </Card>

@@ -8,103 +8,144 @@ import { useAppStore } from "@/lib/store"
 import { Bell, Calendar, Droplet, Sparkles, Wind } from "lucide-react"
 import { useMemo } from "react"
 
-const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-
-function getTaskIcon(task: string) {
-  if (task.toLowerCase().includes('oil')) return Droplet
-  if (task.toLowerCase().includes('wash')) return Wind
-  if (task.toLowerCase().includes('mask')) return Sparkles
-  if (task.toLowerCase().includes('serum')) return Sparkles
-  return Calendar
-}
-
 export function RoutineScreen() {
-  const { weeklyRoutine, toggleRoutineItem, remindersEnabled, toggleReminders } = useAppStore()
-  
-  const routineByDay = useMemo(() => {
-    const grouped: Record<string, typeof weeklyRoutine> = {}
-    dayOrder.forEach(day => {
-      const tasks = weeklyRoutine.filter(item => item.day === day)
-      if (tasks.length > 0) {
-        grouped[day] = tasks
+  const { weeklyRoutine, remindersEnabled, toggleRoutineItem, toggleReminders } =
+    useAppStore()
+
+  const completedTasks = weeklyRoutine.filter((item) => item.completed).length
+  const completionRate = ((completedTasks / weeklyRoutine.length) * 100).toFixed(0)
+
+  const routinesByDay = useMemo(() => {
+    const grouped: { [key: string]: typeof weeklyRoutine } = {}
+    weeklyRoutine.forEach((item) => {
+      if (!grouped[item.day]) {
+        grouped[item.day] = []
       }
+      grouped[item.day].push(item)
     })
     return grouped
   }, [weeklyRoutine])
-  
-  const today = new Date().toLocaleDateString('en-US', { weekday: 'long' })
-  
+
+  const getDayIcon = (day: string) => {
+    const icons: { [key: string]: any } = {
+      Monday: Droplet,
+      Wednesday: Sparkles,
+      Friday: Sparkles,
+      Sunday: Droplet,
+      Daily: Wind,
+    }
+    const IconComponent = icons[day] || Calendar
+    return <IconComponent className="h-4 w-4" />
+  }
+
   return (
     <div className="space-y-6 px-4 pb-24 pt-6">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold text-foreground">Weekly Routine</h1>
-          <p className="text-muted-foreground">
-            Your personalized haircare schedule
+      {/* Header */}
+      <div className="space-y-1">
+        <h1 className="text-2xl font-bold text-foreground">Your Hair Routine</h1>
+        <p className="text-muted-foreground">
+          {completionRate}% complete this week
+        </p>
+      </div>
+
+      {/* Progress Overview */}
+      <Card className="border-0 bg-card shadow-lg shadow-black/5">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base font-semibold">Weekly Progress</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-end gap-1">
+            {weeklyRoutine.map((item, idx) => (
+              <div
+                key={item.id}
+                className={`flex-1 h-12 rounded-t-lg transition-colors ${
+                  item.completed
+                    ? "bg-primary"
+                    : "bg-muted"
+                }`}
+                title={`${item.day}: ${item.completed ? "Completed" : "Pending"}`}
+              />
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground mt-2">
+            {completedTasks} of {weeklyRoutine.length} tasks completed
           </p>
-        </div>
-        
-        <Card className="border-0 bg-card shadow-lg shadow-black/5">
-          <CardContent className="flex items-center justify-between p-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                <Bell className="h-5 w-5 text-primary" />
+        </CardContent>
+      </Card>
+
+      {/* Routines by Day */}
+      {Object.entries(routinesByDay).map(([day, items]) => (
+        <Card key={day} className="border-0 bg-card shadow-lg shadow-black/5">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              {getDayIcon(day)}
+              {day}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {items.map((item) => (
+              <div
+                key={item.id}
+                className="flex items-center gap-3 p-2 rounded-lg hover:bg-secondary/50 transition-colors"
+              >
+                <Checkbox
+                  id={item.id}
+                  checked={item.completed}
+                  onCheckedChange={() => toggleRoutineItem(item.id)}
+                  className="h-5 w-5"
+                />
+                <label
+                  htmlFor={item.id}
+                  className={`flex-1 text-sm font-medium cursor-pointer transition-colors ${
+                    item.completed
+                      ? "text-muted-foreground line-through"
+                      : "text-foreground"
+                  }`}
+                >
+                  {item.task}
+                </label>
               </div>
-              <div>
-                <Label htmlFor="reminders" className="font-semibold">Daily Reminders</Label>
-                <p className="text-xs text-muted-foreground">Get notified about your routine</p>
-              </div>
+            ))}
+          </CardContent>
+        </Card>
+      ))}
+
+      {/* Hair Myths & Facts */}
+      <Card className="border-0 bg-card shadow-lg shadow-black/5">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-semibold">Hair Myths Debunked</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <MythItem 
+            myth="Frequent shampooing makes hair grow faster"
+            truth="Hair growth happens at the scalp, not from shampooing. Over-washing strips natural oils and damages hair."
+          />
+          <MythItem 
+            myth="Cutting hair makes it grow thicker"
+            truth="Cutting removes dead ends but doesn't affect growth rate or thickness. A trim keeps hair healthy-looking!"
+          />
+          <MythItem 
+            myth="Brushing 100 strokes makes hair healthier"
+            truth="Over-brushing can actually damage hair and cause breakage. Gentle is better!"
+          />
+        </CardContent>
+      </Card>
+
+      {/* Reminders */}
+      <Card className="border-0 bg-card shadow-lg shadow-black/5">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-semibold">Notifications</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
+            <div>
+              <Label htmlFor="reminders" className="font-semibold">Daily Reminders</Label>
+              <p className="text-xs text-muted-foreground">Get notified about your routine</p>
             </div>
             <Switch id="reminders" checked={remindersEnabled} onCheckedChange={toggleReminders} />
-          </CardContent>
-        </Card>
-        
-        {Object.entries(routineByDay).map(([day, tasks]) => (
-          <Card key={day} className="border-0 bg-card shadow-lg shadow-black/5">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base font-semibold">
-                {day} {day === today ? '(Today)' : ''}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {tasks.map((task, index) => {
-                  const Icon = getTaskIcon(task.task)
-                  return (
-                    <label key={task.id} className="flex items-center gap-3 cursor-pointer">
-                      <Checkbox 
-                        checked={task.completed}
-                        onCheckedChange={() => toggleRoutineItem(task.id)}
-                      />
-                      <Icon className="h-4 w-4 text-muted-foreground" />
-                      <span className={task.completed ? 'line-through text-muted-foreground' : 'text-foreground'}>
-                        {task.task}
-                      </span>
-                    </label>
-                  )
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-        
-        <Card className="border-0 bg-accent/20 shadow-lg shadow-black/5">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Hair Myth Buster</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <MythItem 
-                myth="Cutting hair makes it grow faster"
-                truth="Hair growth happens at the roots, not the ends. Trimming just removes split ends!"
-              />
-              <MythItem 
-                myth="Brushing 100 strokes makes hair healthier"
-                truth="Over-brushing can actually damage hair and cause breakage. Gentle is better!"
-              />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
