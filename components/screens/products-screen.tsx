@@ -1,6 +1,5 @@
 "use client"
 
-import { Navbar } from "@/components/navbar"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { useAppStore } from "@/lib/store"
@@ -46,9 +45,7 @@ export function ProductsScreen() {
   }, [userProfile])
   
   return (
-    <>
-      <Navbar />
-      <div className="space-y-6 px-4 pb-24 pt-6">
+    <div className="space-y-6 px-4 pb-24 pt-6">
         <div className="space-y-1">
           <h1 className="text-2xl font-bold text-foreground">Product Picks</h1>
           <p className="text-muted-foreground">
@@ -73,7 +70,7 @@ export function ProductsScreen() {
           ))}
         </div>
       </div>
-    </>
+    </div>
   )
 }
 

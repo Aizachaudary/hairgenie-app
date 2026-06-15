@@ -1,6 +1,5 @@
 "use client"
 
-import { Navbar } from "@/components/navbar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { useAppStore } from "@/lib/store"
@@ -70,9 +69,7 @@ export function DashboardScreen() {
   }
   
   return (
-    <>
-      <Navbar />
-      <div className="space-y-6 px-4 pb-24 pt-6">
+    <div className="space-y-6 px-4 pb-24 pt-6">
         <div className="space-y-1">
           <h1 className="text-2xl font-bold text-foreground">
             {getGreeting()}, {userProfile.name || 'there'}! 👋
@@ -171,7 +168,7 @@ export function DashboardScreen() {
           </CardContent>
         </Card>
       </div>
-    </>
+    </div>
   )
 }
 

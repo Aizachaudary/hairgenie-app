@@ -1,6 +1,5 @@
 "use client"
 
-import { Navbar } from "@/components/navbar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Switch } from "@/components/ui/switch"
@@ -36,9 +35,7 @@ export function RoutineScreen() {
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long' })
   
   return (
-    <>
-      <Navbar />
-      <div className="space-y-6 px-4 pb-24 pt-6">
+    <div className="space-y-6 px-4 pb-24 pt-6">
         <div className="space-y-1">
           <h1 className="text-2xl font-bold text-foreground">Weekly Routine</h1>
           <p className="text-muted-foreground">
@@ -108,7 +105,7 @@ export function RoutineScreen() {
           </CardContent>
         </Card>
       </div>
-    </>
+    </div>
   )
 }
 
