@@ -1,19 +1,20 @@
-# HairGenie
+# HairGenie — Your hair, decoded.
 
-An AI-powered haircare platform with a multi-database architecture and personalized recommendations.
+A personalized haircare platform that builds a routine around your actual hair type, scalp, and lifestyle, then tracks your progress with real data.
 
 ## Live demo
-🔗 https://v0-hairgenie-app.vercel.app
+🔗 https://gethairgenie.vercel.app
 
 ## What it does
-HairGenie guides users through a 7-step onboarding wizard, analyzes uploaded hair photos, and generates haircare recommendations through a rule-based engine designed for future ML integration. Includes user accounts (login/signup), a profile dashboard, and a customizable profile dropdown component.
+HairGenie replaces generic haircare advice with a routine built from a 7-step hair profile (hair type, condition, scalp, concerns, lifestyle, and even water type). Users get a weekly Mon–Sun routine, curated product recommendations, and can track hair fall and frizz over time with before/after progress photos.
 
 ## Features
-- 7-step onboarding wizard
-- Image-based hair analysis
-- Rule-based haircare recommendation engine
-- User authentication (login, signup, logout)
-- Dashboard with user profile management
+- 7-step hair profile quiz
+- Personalized weekly haircare routine
+- Progress tracking with photo galleries and trend lines
+- Product recommendations matched to hair profile and budget
+- User authentication (login/signup)
+- Private, row-level-secured user data
 
 ## Tech stack
 - **Next.js** + **TypeScript** – frontend framework
@@ -30,4 +31,4 @@ npm run dev
 Then open http://localhost:3000 in your browser.
 
 ## Status
-Actively developed, deployed on Vercel.
+Live and actively developed, deployed on Vercel.
